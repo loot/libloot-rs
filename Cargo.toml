@@ -17,6 +17,7 @@ saphyr-parser = "0.0.3"
 unicase = "2.8.1"
 rayon = "1.10.0"
 rustc-hash = "2.1.1"
+smol_str = { version = "0.3.2", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.61.1", features = ["Win32_Storage_FileSystem"] }
