@@ -2,6 +2,7 @@ use std::{borrow::Cow, sync::LazyLock};
 
 use fancy_regex::{Captures, Regex};
 use saphyr::{MarkedYaml, YamlData};
+use smol_str::SmolStr;
 
 use crate::logging;
 
@@ -44,8 +45,8 @@ impl std::fmt::Display for MessageType {
 /// Represents a message's localised text content.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct MessageContent {
-    text: String,
-    language: String,
+    text: SmolStr,
+    language: SmolStr,
 }
 
 impl MessageContent {
@@ -57,7 +58,7 @@ impl MessageContent {
     #[must_use]
     pub fn new(text: String) -> Self {
         MessageContent {
-            text,
+            text: text.into(),
             ..Default::default()
         }
     }
@@ -81,7 +82,7 @@ impl MessageContent {
 
     /// Set the language code to the given value.
     pub fn set_language(&mut self, language: String) -> &mut Self {
-        self.language = language;
+        self.language = language.into();
         self
     }
 }
@@ -252,8 +253,8 @@ impl TryFrom<&MarkedYaml> for MessageContent {
             get_required_string_value(value.span.start, hash, "lang", YamlObjectType::Message)?;
 
         Ok(MessageContent {
-            text: text.to_string(),
-            language: language.to_string(),
+            text: text.into(),
+            language: language.into(),
         })
     }
 }
@@ -347,7 +348,7 @@ impl TryFrom<&MarkedYaml> for Message {
                     });
 
                     if let Cow::Owned(text) = result {
-                        mc.text = text;
+                        mc.text = text.into();
                     }
                 }
 
@@ -361,7 +362,7 @@ impl TryFrom<&MarkedYaml> for Message {
                         ));
                     }
 
-                    mc.text = mc.text.replace(&placeholder, sub);
+                    mc.text = mc.text.replace(&placeholder, sub).into();
                 }
 
                 if let Ok(Some(m)) = FMT_REGEX.find(&mc.text) {
