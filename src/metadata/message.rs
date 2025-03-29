@@ -1,6 +1,6 @@
 use std::{borrow::Cow, sync::LazyLock};
 
-use fancy_regex::{Captures, Regex};
+use regress::Regex;
 use saphyr::{MarkedYaml, Scalar, YamlData};
 
 use crate::logging;
@@ -323,19 +323,7 @@ impl TryFromYaml for Message {
                             .expect("hardcoded Boost placeholder regex should be valid")
                     });
 
-                    let result = BOOST_REGEX.replace_all(&mc.text, |captures: &Captures| {
-                        match captures[1].parse::<u32>() {
-                            Ok(i) if i > 0 => format!("{{{}}}", i - 1),
-                            Ok(_) => {
-                                logging::warn!("Found zero-indexed placeholder using Boost syntax in string \"{}\"", mc.text);
-                                captures[0].to_string()
-                            },
-                            Err(e) => {
-                                logging::error!("Unexpected failure to parse Boost placeholder index \"{}\": {}", &captures[1], e);
-                                captures[0].to_string()
-                            }
-                        }
-                    });
+                    let result = replace_all(&BOOST_REGEX, &mc.text);
 
                     if let Cow::Owned(text) = result {
                         mc.text = text.into_boxed_str();
@@ -355,10 +343,12 @@ impl TryFromYaml for Message {
                     mc.text = mc.text.replace(&placeholder, sub).into_boxed_str();
                 }
 
-                if let Ok(Some(m)) = FMT_REGEX.find(&mc.text) {
+                if let Some(m) = FMT_REGEX.find(&mc.text) {
                     return Err(ParseMetadataError::new(
                         value.span.start,
-                        MetadataParsingErrorReason::MissingSubstitution(m.as_str().to_string()),
+                        MetadataParsingErrorReason::MissingSubstitution(
+                            mc.text[m.range].to_string(),
+                        ),
                     ));
                 }
             }
@@ -372,6 +362,55 @@ impl TryFromYaml for Message {
             condition,
         })
     }
+}
+
+fn replace_all<'a>(regex: &Regex, text: &'a str) -> Cow<'a, str> {
+    // Adapted from <https://docs.rs/regex/latest/src/regex/regex/string.rs.html#907>
+    let mut iter = regex.find_iter(text).peekable();
+
+    if iter.peek().is_none() {
+        return Cow::Borrowed(text);
+    }
+
+    let mut new = String::with_capacity(text.len());
+    let mut last_match = 0;
+
+    for match_ in iter {
+        new.push_str(&text[last_match..match_.start()]);
+
+        let capture_range = match_
+            .group(1)
+            .expect("At least one capturing group is defined and was matched");
+        let capture = &text[capture_range];
+
+        match capture.parse::<u32>() {
+            Ok(i) if i > 0 => {
+                let replacement = format!("{{{}}}", i - 1);
+                new.push_str(&replacement);
+            }
+            Ok(_) => {
+                logging::warn!(
+                    "Found zero-indexed placeholder using Boost syntax in string \"{}\"",
+                    text
+                );
+                new.push_str(&text[match_.start()..match_.end()]);
+            }
+            Err(e) => {
+                logging::error!(
+                    "Unexpected failure to parse Boost placeholder index \"{}\": {}",
+                    capture,
+                    e
+                );
+                new.push_str(&text[match_.start()..match_.end()]);
+            }
+        }
+
+        last_match = match_.end();
+    }
+
+    new.push_str(&text[last_match..]);
+
+    Cow::Owned(new)
 }
 
 impl EmitYaml for MessageContent {

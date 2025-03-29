@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
-use fancy_regex::{Error as RegexImplError, Regex};
+use regress::{Error as RegexImplError, Regex};
 use saphyr::MarkedYaml;
 
-use crate::{Database, case_insensitive_regex, error::ConditionEvaluationError, logging};
+use crate::{Database, case_insensitive_regex, error::ConditionEvaluationError};
 
 use super::{
     error::{MetadataParsingErrorReason, ParseMetadataError, RegexError},
@@ -274,9 +274,7 @@ impl PluginName {
 
     fn matches(&self, other_name: &str) -> bool {
         if let Some(regex) = &self.regex {
-            regex.is_match(other_name).inspect_err(|e| {
-                logging::error!("Encountered an error while trying to match the regex {} to the string {}: {}", regex.as_str(), other_name, e);
-            }).unwrap_or(false)
+            regex.find(other_name).is_some()
         } else {
             unicase::eq(self.string.as_ref(), other_name)
         }

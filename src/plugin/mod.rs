@@ -10,7 +10,7 @@ use std::{
 };
 
 use esplugin::ParseOptions;
-use fancy_regex::{Error as RegexImplError, Regex};
+use regress::{Error as RegexImplError, Regex};
 
 use crate::{
     GameType,
@@ -444,14 +444,9 @@ fn extract_version(description: &str) -> Result<Option<String>, Box<RegexImplErr
 
     for regex in &*VERSION_REGEXES {
         let version = regex
-            .captures(description)?
-            .iter()
-            .flat_map(|captures| captures.iter())
-            .flatten()
-            .skip(1) // Skip the first capture as that's the whole regex.
-            .map(|m| m.as_str().trim())
-            .find(|v| !v.is_empty())
-            .map(|v| v.to_string());
+            .find(description)
+            .and_then(|m| m.group(1))
+            .map(|r| description[r].trim().to_string());
 
         if version.is_some() {
             return Ok(version);
