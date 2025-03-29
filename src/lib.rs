@@ -10,7 +10,7 @@ mod sorting;
 mod tests;
 mod version;
 
-use fancy_regex::{Error as RegexImplError, Regex, RegexBuilder};
+use regress::{Error as RegexImplError, Regex};
 
 pub use database::{Database, WriteMode};
 pub use game::{Game, GameType};
@@ -23,8 +23,5 @@ pub use version::{
 };
 
 fn case_insensitive_regex(value: &str) -> Result<Regex, Box<RegexImplError>> {
-    RegexBuilder::new(value)
-        .case_insensitive(true)
-        .build()
-        .map_err(Into::into)
+    Regex::with_flags(value, "iu").map_err(Into::into)
 }
