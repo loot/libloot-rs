@@ -10,7 +10,7 @@ use std::{
 };
 
 use esplugin::ParseOptions;
-use fancy_regex::{Error as RegexImplError, Regex};
+use pcre2::{Error as RegexImplError, bytes::Regex};
 
 use crate::{
     GameType,
@@ -444,12 +444,10 @@ fn extract_version(description: &str) -> Result<Option<String>, Box<RegexImplErr
 
     for regex in &*VERSION_REGEXES {
         let version = regex
-            .captures(description)?
+            .captures(description.as_bytes())?
             .iter()
-            .flat_map(|captures| captures.iter())
-            .flatten()
-            .skip(1) // Skip the first capture as that's the whole regex.
-            .map(|m| m.as_str().trim())
+            .flat_map(|c| c.get(1))
+            .map(|m| description[m.start()..m.end()].trim())
             .find(|v| !v.is_empty())
             .map(|v| v.to_string());
 

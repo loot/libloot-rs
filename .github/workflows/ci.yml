@@ -90,6 +90,10 @@ jobs:
         shell: bash
         run: echo "LIBLOOT_REVISION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
+      - name: Force PCRE2 to be statically linked
+        shell: bash
+        run: echo "PCRE2_SYS_STATIC=1" >> $GITHUB_ENV
+
       - name: Build and run tests with code coverage
         run: cargo llvm-cov --lcov --output-path lcov.info --target ${{ matrix.target.triple }}
 

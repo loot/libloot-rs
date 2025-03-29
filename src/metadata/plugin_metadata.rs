@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use fancy_regex::{Error as RegexImplError, Regex};
+use pcre2::{Error as RegexImplError, bytes::Regex};
 use saphyr::MarkedYaml;
 
 use crate::{Database, case_insensitive_regex, error::ConditionEvaluationError, logging};
@@ -274,9 +274,9 @@ impl PluginName {
 
     fn matches(&self, other_name: &str) -> bool {
         if let Some(regex) = &self.regex {
-            regex.is_match(other_name).inspect_err(|e| {
-                logging::error!("Encountered an error while trying to match the regex {} to the string {}: {}", regex.as_str(), other_name, e);
-            }).unwrap_or(false)
+            regex.is_match(other_name.as_bytes()).inspect_err(|e| {
+                                logging::error!("Encountered an error while trying to match the regex {} to the string {}: {}", regex.as_str(), other_name, e);
+                            }).unwrap_or(false)
         } else {
             unicase::eq(self.string.as_ref(), other_name)
         }

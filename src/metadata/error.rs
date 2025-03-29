@@ -1,7 +1,7 @@
 //! Holds all error types related to LOOT metadata.
 use std::path::PathBuf;
 
-use fancy_regex::Error as RegexImplError;
+use pcre2::Error as RegexImplError;
 use saphyr::Marker;
 
 use crate::metadata::MessageContent;

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use fancy_regex::Error as RegexImplError;
+use pcre2::Error as RegexImplError;
 
 /// Represents an error that occurred while reading a parsed plugin's data.
 #[derive(Debug)]

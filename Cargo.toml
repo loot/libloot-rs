@@ -8,6 +8,7 @@ license = "GPL-3.0"
 crc32fast = "1.4.2"
 fancy-regex = "0.14.0"
 log = { version = "0.4.26", features = ["std"] }
+pcre2 = "0.2.9"
 petgraph = "0.8.1"
 rayon = "1.10.0"
 rustc-hash = "2.1.1"
