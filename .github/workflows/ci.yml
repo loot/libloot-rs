@@ -165,6 +165,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-upgrade doxygen
           pip3 install --user -r docs/requirements.txt
+
+          mkdir cargo-attribution
+          curl -sSfL https://github.com/ameknite/cargo-attribution/releases/download/v0.8.13/cargo-attribution-v0.8.13-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C cargo-attribution
+          mv -f cargo-attribution/cargo-attribution $HOME/.cargo/bin/cargo-attribution
         if: runner.os == 'Linux'
 
       - name: Install packages for building docs (Windows)
@@ -173,6 +177,10 @@ jobs:
           nuget install doxygen -Version 1.8.14
           echo "${{ github.workspace }}\Doxygen.1.8.14\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           python -m pip install -r docs/requirements.txt
+
+          Invoke-WebRequest https://github.com/ameknite/cargo-attribution/releases/download/v0.8.13/cargo-attribution-v0.8.13-x86_64-pc-windows-msvc.zip -OutFile cargo-attribution.zip
+          Expand-Archive cargo-attribution.zip
+          Move-Item cargo-attribution/cargo-attribution.exe ~/.cargo/bin/cargo-attribution -Force
         if: runner.os == 'Windows'
 
       - name: Build docs

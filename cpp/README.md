@@ -63,12 +63,13 @@ ctest --test-dir build --output-on-failure --parallel -V
 
 ### Documentation
 
-The documentation is built using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), [Breathe](https://breathe.readthedocs.io/en/latest/) and [Sphinx](http://www.sphinx-doc.org/en/stable/). Install Doxygen and Python and make sure they're accessible from your `PATH`, then run:
+The documentation is built using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), [Breathe](https://breathe.readthedocs.io/en/latest/) and [Sphinx](http://www.sphinx-doc.org/en/stable/), and [cargo-attribution](https://github.com/ameknite/cargo-attribution) is used to gather licensing information from dependencies. Install Doxygen, Python and cargo-attribution and make sure they're accessible from your `PATH`, then run:
 
 ```
 py -m venv .venv
 .venv\Scripts\activate
 pip install -r docs/requirements.txt
+py scripts/licenses.py
 sphinx-build -b html docs build/docs/html
 ```
 

@@ -1,1 +1,8 @@
 /build
+
+# The following are created by the licenses.py script
+/docs/licenses/notices.rst
+/docs/licenses/Apache-2.0
+/docs/licenses/BSD-3-Clause
+/docs/licenses/MIT
+/docs/licenses/Unicode-3.0

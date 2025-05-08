@@ -92,6 +92,10 @@ jobs:
           echo "${{ github.workspace }}\Doxygen.1.8.14\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           python -m pip install -r docs/requirements.txt
 
+          Invoke-WebRequest https://github.com/ameknite/cargo-attribution/releases/download/v0.8.13/cargo-attribution-v0.8.13-x86_64-pc-windows-msvc.zip -OutFile cargo-attribution.zip
+          Expand-Archive cargo-attribution.zip
+          Move-Item cargo-attribution/cargo-attribution.exe ~/.cargo/bin/cargo-attribution -Force
+
       - name: Build docs
         working-directory: cpp
         run: sphinx-build -b html docs build\docs\html
