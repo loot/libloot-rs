@@ -1,7 +1,7 @@
 version: 2
 
 sphinx:
-  configuration: docs/conf.py
+  configuration: cpp/docs/conf.py
 
 formats: all
 
@@ -12,4 +12,4 @@ build:
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    - requirements: cpp/docs/requirements.txt
