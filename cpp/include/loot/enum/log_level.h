@@ -38,7 +38,6 @@ enum struct LogLevel : unsigned int {
   info,
   warning,
   error,
-  fatal
 };
 }
 
